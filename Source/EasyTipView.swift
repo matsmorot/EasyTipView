@@ -176,6 +176,7 @@ open class EasyTipView: UIView {
             public var borderWidth         = CGFloat(0)
             public var borderColor         = UIColor.clear
             public var font                = UIFont.systemFont(ofSize: 15)
+            public var boldFont            = UIFont.boldSystemFont(ofSize: 15)
         }
         
         public struct Positioning {
@@ -510,12 +511,27 @@ open class EasyTipView: UIView {
         paragraphStyle.lineSpacing = preferences.drawing.lineSpacing
         paragraphStyle.lineBreakMode = NSLineBreakMode.byWordWrapping
         
+        // The following is a fullösning to make first line of text (out of 2) bold, if a newline is found
         
+        if text.contains("\n") {
+            
+            let textArray = text.components(separatedBy: "\n")
+            
+            let textRectTop = CGRect(x: bubbleFrame.origin.x + (bubbleFrame.size.width - textSize.width) / 2, y: bubbleFrame.origin.y + (bubbleFrame.size.height - textSize.height - paragraphStyle.lineSpacing) / 2, width: textSize.width, height: (textSize.height + paragraphStyle.lineSpacing) / 2)
+            let textRectBottom = CGRect(x: textRectTop.origin.x, y: textRectTop.maxY, width: textRectTop.width, height: textRectTop.height)
+            
+            textArray[0].draw(in: textRectTop, withAttributes: [NSFontAttributeName : preferences.drawing.boldFont, NSForegroundColorAttributeName : preferences.drawing.foregroundColor, NSParagraphStyleAttributeName : paragraphStyle])
+            
+            textArray[1].draw(in: textRectBottom, withAttributes: [NSFontAttributeName : preferences.drawing.font, NSForegroundColorAttributeName : preferences.drawing.foregroundColor, NSParagraphStyleAttributeName : paragraphStyle])
+            
+        } else {
         
         let textRect = CGRect(x: bubbleFrame.origin.x + (bubbleFrame.size.width - textSize.width) / 2, y: bubbleFrame.origin.y + (bubbleFrame.size.height - textSize.height - paragraphStyle.lineSpacing) / 2, width: textSize.width, height: textSize.height + paragraphStyle.lineSpacing)
         
+            text.draw(in: textRect, withAttributes: [NSFontAttributeName : preferences.drawing.font, NSForegroundColorAttributeName : preferences.drawing.foregroundColor, NSParagraphStyleAttributeName : paragraphStyle])
+            
+        }
         
-        text.draw(in: textRect, withAttributes: [NSFontAttributeName : preferences.drawing.font, NSForegroundColorAttributeName : preferences.drawing.foregroundColor, NSParagraphStyleAttributeName : paragraphStyle])
     }
     
     override open func draw(_ rect: CGRect) {
